@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
-
-var TransactionSchema=mongoose.Schema({
+var Schema =mongoose.Schema;
+const TransactionSchema= new Schema({
     sender_adr:String,
     contract_adr:String,
     selected_package:String,

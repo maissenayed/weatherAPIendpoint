@@ -13,10 +13,11 @@ var app = express();
 //mongoose config :
 var db=require('./database_connector/connector');
 var users=require('./api/user');
-var weatherData=require('./api/weatherData');
-var weatherStation=require('./api/weatherStation');
-var transaction=require('./api/transaction');
-
+var test=require('./api/testcountry');
+//var weatherData=require('./api/weatherData');
+var weatherStation=require('./routes/backOffice/weatherStation');
+var transaction=require('./routes/backOffice/transaction');
+var weatherData=require('./routes/frontOffice/weatherData');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'twig');
@@ -42,6 +43,7 @@ app.use('/users', users);
 app.use('/weatherData', weatherData);
 app.use('/weatherStation', weatherStation);
 app.use('/transaction', transaction);
+app.use('/test', test);
 
 
 // catch 404 and forward to error handler
