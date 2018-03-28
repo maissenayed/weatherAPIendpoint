@@ -4,9 +4,11 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
+var jwt = require('jsonwebtoken');
+var _ = require("lodash");
 var index = require('./routes/index');
-
+var passport = require("passport");
+var passportoption = require("./libs/auth");
 var app = express();
 
 
@@ -18,6 +20,7 @@ var test=require('./api/testcountry');
 var weatherStation=require('./routes/backOffice/weatherStation');
 var transaction=require('./routes/backOffice/transaction');
 var weatherData=require('./routes/frontOffice/weatherData');
+var login=require('./routes/login/login');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'twig');
@@ -26,10 +29,10 @@ app.set('view engine', 'twig');
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(passport.initialize());
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -39,12 +42,12 @@ var allowCrossDomain = function(req, res, next) {
 
 app.use(allowCrossDomain);
 app.use('/', index);
-app.use('/users', users);
-app.use('/weatherData', weatherData);
-app.use('/weatherStation', weatherStation);
-app.use('/transaction', transaction);
-app.use('/test', test);
-
+app.use('/users', passportoption.passport.authenticate('jwt', { session: false }) ,users);
+app.use('/weatherData', passportoption.passport.authenticate('jwt', { session: false }), weatherData);
+app.use('/weatherStation', passportoption.passport.authenticate('jwt', { session: false }), weatherStation);
+app.use('/transaction', passportoption.passport.authenticate('jwt', { session: false }), transaction);
+app.use('/test', passportoption.passport.authenticate('jwt', { session: false }), test);
+app.use('/login', login);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
