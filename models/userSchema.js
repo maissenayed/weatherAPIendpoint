@@ -10,7 +10,11 @@ var UserSchema=mongoose.Schema({
     apiKey:String,
     username:{type:String, index: { unique: true }},
     password:{type:String,required:true},
-    role:String
+    role: {
+        type: String,
+        enum: ['admin', 'client'],
+        default: 'client'
+    }
 });
 // referenced website : https://stackoverflow.com/questions/14588032/mongoose-password-hashing
 UserSchema.pre('save', function (next) {

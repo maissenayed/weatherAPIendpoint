@@ -7,8 +7,9 @@ var bodyParser = require('body-parser');
 var jwt = require('jsonwebtoken');
 var _ = require("lodash");
 var index = require('./routes/index');
+var auth = require("./libs/authentication");
+var authConfig = require('./libs/jwtConfig');
 var passport = require("passport");
-var passportoption = require("./libs/auth");
 var app = express();
 
 
@@ -33,7 +34,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
-var jwtEnable =passportoption.passport.authenticate('jwt', { session: false });
+var jwtEnable =authConfig.passport.authenticate('jwt', { session: false });
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -47,7 +48,7 @@ app.use('/users',users);
 app.use('/weatherData', weatherData);
 app.use('/weatherStation', weatherStation);
 app.use('/transaction',  transaction);
-app.use('/test',jwtEnable, test);
+app.use('/test',jwtEnable,auth.roleAuthorization(['admin']), test);
 app.use('/login', login);
 
 // catch 404 and forward to error handler
