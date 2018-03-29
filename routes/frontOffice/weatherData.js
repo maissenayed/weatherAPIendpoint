@@ -144,4 +144,15 @@ router.get('/fullMap/:country/:state', function(req, res, next) {
 
         });
 });
+//post weather data by raspberrypies (weather station)
+router.post('/',function (req,res) {
+    console.log( req.body);
+    var newWeatherData=new weatherData(req.body);
+    newWeatherData.save(function (err,newWeatherData) {
+        if(err)
+            res.send(err);
+        else
+            res.send(newWeatherData);
+    });
+});
 module.exports = router;

@@ -11,18 +11,6 @@ var ExtractJwt = passportJWT.ExtractJwt;
 var JwtStrategy = passportJWT.Strategy;
 
 
-var users = [
-    {
-        id: 1,
-        name: 'jonathanmh',
-        password: '%2yx4'
-    },
-    {
-        id: 2,
-        name: 'test',
-        password: 'test'
-    }
-];
 
 var jwtOptions = {}
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();

@@ -14,7 +14,7 @@ var app = express();
 
 //mongoose config :
 var db=require('./database_connector/connector');
-var users=require('./api/user');
+var users=require('./routes/backOffice/user');
 var test=require('./api/testcountry');
 //var weatherData=require('./api/weatherData');
 var weatherStation=require('./routes/backOffice/weatherStation');
@@ -33,6 +33,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
+var jwtEnable =passportoption.passport.authenticate('jwt', { session: false });
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -42,11 +43,11 @@ var allowCrossDomain = function(req, res, next) {
 
 app.use(allowCrossDomain);
 app.use('/', index);
-app.use('/users', passportoption.passport.authenticate('jwt', { session: false }) ,users);
-app.use('/weatherData', passportoption.passport.authenticate('jwt', { session: false }), weatherData);
-app.use('/weatherStation', passportoption.passport.authenticate('jwt', { session: false }), weatherStation);
-app.use('/transaction', passportoption.passport.authenticate('jwt', { session: false }), transaction);
-app.use('/test', passportoption.passport.authenticate('jwt', { session: false }), test);
+app.use('/users',users);
+app.use('/weatherData', weatherData);
+app.use('/weatherStation', weatherStation);
+app.use('/transaction',  transaction);
+app.use('/test',jwtEnable, test);
 app.use('/login', login);
 
 // catch 404 and forward to error handler
