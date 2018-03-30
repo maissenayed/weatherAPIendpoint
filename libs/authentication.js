@@ -2,7 +2,7 @@ var jwt = require('jsonwebtoken');
 var User = require('../models/userSchema');
 var authConfig = require('./jwtConfig');
 
-
+// set jwt user info
 function setUserInfo(request){
     return {
         _id: request._id,
@@ -10,6 +10,7 @@ function setUserInfo(request){
         role: request.role
     };
 }
+//random uiid function for api key
 exports.uuid=function generateUUID() {
     var d = new Date().getTime();
 
@@ -22,6 +23,7 @@ exports.uuid=function generateUUID() {
 
     return uuid;
    }
+   /*login function*/
 exports.login = function(req, res, next){
 
     if(req.body.name && req.body.password){
@@ -60,6 +62,7 @@ exports.login = function(req, res, next){
     });*/
 
 }
+//register function
 exports.register = function(req, res, next){
 
     var username = req.body.username;
@@ -107,6 +110,7 @@ exports.register = function(req, res, next){
     });
 
 }
+//role authorisation for jwt
 exports.roleAuthorization = function(roles){
 
     return function(req, res, next){
@@ -132,6 +136,7 @@ exports.roleAuthorization = function(roles){
     }
 
 }
+//login with meta mask
 exports.MetaSign = function(req, res){
     var owner_adr  =req.body.address;
     var sig  =req.body.signature;

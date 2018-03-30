@@ -1,3 +1,5 @@
+//passport config and jwt claims options
+
 var passport = require("passport");
 var passportJWT = require("passport-jwt");
 var User = require('../models/userSchema');
