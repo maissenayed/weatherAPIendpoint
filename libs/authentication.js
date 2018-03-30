@@ -10,7 +10,18 @@ function setUserInfo(request){
         role: request.role
     };
 }
+exports.uuid=function generateUUID() {
+    var d = new Date().getTime();
 
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c)
+    {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+
+    return uuid;
+   }
 exports.login = function(req, res, next){
 
     if(req.body.name && req.body.password){
@@ -33,8 +44,11 @@ exports.login = function(req, res, next){
                     res.status(401).json({message:"passwords did not match"});
                 }
             });
+            if(user.apiExpirationDate !==  new Date().getTime()){
+                return res.status(422).send({error: 'Your API validation has expired'});
+            }
             let userInfo = setUserInfo(user);
-            let token = jwt.sign(userInfo,authConfig.jwtOptions.secretOrKey);
+            let token = jwt.sign(userInfo,authConfig.jwtOptions.secretOrKey,{ expiresIn: 10080});
             res.json({message: "ok", token: token,userInfo:userInfo});
         }
     });
@@ -46,7 +60,6 @@ exports.login = function(req, res, next){
     });*/
 
 }
-
 exports.register = function(req, res, next){
 
     var username = req.body.username;
@@ -75,7 +88,8 @@ exports.register = function(req, res, next){
             username: username,
             password: password,
             wallet_adr: address,
-            role: "client"
+            role: "client",
+            apiKey: uuid()
         });
 
         user.save(function(err, user){
@@ -85,7 +99,7 @@ exports.register = function(req, res, next){
             }
 
             let userInfo = setUserInfo(user);
-            let token = jwt.sign(userInfo,authConfig.jwtOptions.secretOrKey);
+            let token = jwt.sign(userInfo,authConfig.jwtOptions.secretOrKey, {expiresIn: 10080});
             res.json({message: "ok", token: token,userInfo:userInfo});
 
         });
@@ -93,7 +107,6 @@ exports.register = function(req, res, next){
     });
 
 }
-
 exports.roleAuthorization = function(roles){
 
     return function(req, res, next){
@@ -119,7 +132,6 @@ exports.roleAuthorization = function(roles){
     }
 
 }
-
 exports.MetaSign = function(req, res){
     var owner_adr  =req.body.address;
     var sig  =req.body.signature;
@@ -151,7 +163,7 @@ exports.MetaSign = function(req, res){
             }else {
 
                 let userInfo = setUserInfo(user);
-                let token = jwt.sign(userInfo,authConfig.jwtOptions.secretOrKey);
+                let token = jwt.sign(userInfo,authConfig.jwtOptions.secretOrKey,{ expiresIn: 10080});
                 res.json({message: "ok", token: token,userInfo:userInfo});
             }
         });

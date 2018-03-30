@@ -1,5 +1,7 @@
+//test api for various code test not to bother with
 var state=require('./../models/stateSchema');
 var Country=require('./../models/countrySchema');
+var user = require("./../libs/User");
 var express = require('express');
 var router = express.Router();
 /* GET home page. */
@@ -17,4 +19,5 @@ router.get('/c', function(req, res, next) {
         res.json(country);
     })
 });
+router.get('/m',user.UserTransaction);
 module.exports = router;

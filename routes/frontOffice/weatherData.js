@@ -13,22 +13,16 @@ router.get('/fullMap', function(req, res, next) {
                    avgHumidity: { $avg: "$main.humidity" },maxHumidity: { $max: "$main.humidity" },minHumidity: { $min: "$main.humidity" },
                    avgPressure: { $avg: "$main.pressure" },maxPressure: { $max: "$main.pressure" },minPressure: { $min: "$main.pressure" },
                    doc: {$first: "$$ROOT"}}},
-
-
        { $project : { _id:1, InstantWeatherData: "$doc",
-               avgTemp:1,avgHumidity:1,avgPressure:1,maxTemp:1,minTemp:1,minHumidity:1,minPressure:1,maxHumidity:1,maxPressure:1,
-
+               avgTemp:1,avgHumidity:1,avgPressure:1,
+               maxTemp:1,minTemp:1,minHumidity:1,minPressure:1,maxHumidity:1,maxPressure:1,
            }},
        {$group: {"_id":{country:'$_id.country'},
                avgTemp: { $avg: "$avgTemp" },maxTemp: { $max: "$maxTemp" },minTemp: { $min: "$minTemp" },
                avgHumidity: { $avg: "$avgHumidity" },maxHumidity: { $max: "$maxHumidity" },minHumidity: { $min: "$minHumidity" },
                avgPressure: { $avg: "$avgPressure" },maxPressure: { $max: "$maxPressure" },minPressure: { $min: "$minPressure" },
                }},
-
-
-
        { $sort: {  '_id.country': 1 } },
-
     ])
         .exec((err,weatherstation) => {
            if (err){return console.log(err)}
@@ -58,7 +52,7 @@ router.get('/fullMap', function(req, res, next) {
 router.get('/range/temp', function(req, res, next) {
     var maxTemp= req.query.maxtemp;
     var minTemp= req.query.mintemp;
-    weatherData.find().where('main.temp').gt(minTemp).lt(maxTemp)
+    weatherData.find({'timestamp':{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)) }}).where('main.temp').gt(minTemp).lt(maxTemp)
         .exec((err,weatherstation) => {
             if (err){return console.log(err)}
             res.json(weatherstation);
@@ -68,7 +62,16 @@ router.get('/range/temp', function(req, res, next) {
 router.get('/range/humidity', function(req, res, next) {
     var maxHumidity= req.query.maxHumidity;
     var minHumidity= req.query.minHumidity;
-    weatherData.find().where('main.humidity').gt(minHumidity).lt(maxHumidity)
+    weatherData.find({'timestamp':{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)) }}).where('main.humidity').gt(minHumidity).lt(maxHumidity)
+        .exec((err,weatherstation) => {
+            if (err){return console.log(err)}
+            res.json(weatherstation);
+        });
+});
+router.get('/range/pressure', function(req, res, next) {
+    var maxPressure= req.query.maxPressure;
+    var minPressure= req.query.minPressure;
+    weatherData.find({'timestamp':{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)) }}).where('main.pressure').gt(minPressure).lt(maxPressure)
         .exec((err,weatherstation) => {
             if (err){return console.log(err)}
             res.json(weatherstation);
