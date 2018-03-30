@@ -2,12 +2,7 @@ var jwt = require('jsonwebtoken');
 var User = require('../models/userSchema');
 var authConfig = require('./jwtConfig');
 
-/*function generateToken(user){
-    return jwt.sign(user, authConfig.secret, {
-        expiresIn: 10080
-    });
-}
-*/
+
 function setUserInfo(request){
     return {
         _id: request._id,
@@ -54,32 +49,33 @@ exports.login = function(req, res, next){
 
 exports.register = function(req, res, next){
 
-    var email = req.body.email;
+    var username = req.body.username;
     var password = req.body.password;
-    var role = req.body.role;
+    var address = req.body.address;
 
-    if(!email){
-        return res.status(422).send({error: 'You must enter an email address'});
+    if(!username){
+        return res.status(422).send({error: 'You must enter an UserName bech'});
     }
 
     if(!password){
         return res.status(422).send({error: 'You must enter a password'});
     }
 
-    User.findOne({email: email}, function(err, existingUser){
+    User.findOne({userName: email}, function(err, existingUser){
 
         if(err){
             return next(err);
         }
 
         if(existingUser){
-            return res.status(422).send({error: 'That email address is already in use'});
+            return res.status(422).send({error: 'That UserName is already in use'});
         }
 
         var user = new User({
-            email: email,
+            username: username,
             password: password,
-            role: role
+            wallet_adr: address,
+            role: "client"
         });
 
         user.save(function(err, user){
@@ -123,3 +119,51 @@ exports.roleAuthorization = function(roles){
     }
 
 }
+
+exports.MetaSign = function(req, res){
+    var owner_adr  =req.body.address;
+    var sig  =req.body.signature;
+    console.log('owner_adr: '+ owner_adr)
+    console.log('signature: '+ sig)
+
+    var data = '270bytes weather';
+    var message = ethUtil.toBuffer(data);
+    var msgHash = ethUtil.hashPersonalMessage(message);
+    // Get the address of whoever signed this message
+    var signature = ethUtil.toBuffer(sig);
+
+    var sigParams = ethUtil.fromRpcSig(signature);
+    var publicKey = ethUtil.ecrecover(msgHash, sigParams.v, sigParams.r, sigParams.s);
+    var sender = ethUtil.publicToAddress(publicKey);
+    var addr = ethUtil.bufferToHex(sender);
+
+    // Determine if it is the same address as 'owner'
+    var match = false;
+    if (addr == owner_adr) { match = true;
+
+        // usually this would be a database call:
+        User.findOne({wallet_adr: new RegExp('^'+owner_adr+'$', "i")}, function(err, user) {
+            if(err){
+                res.send(err);
+            }
+            if(!user){
+                res.sendStatus(404);
+            }else {
+
+                let userInfo = setUserInfo(user);
+                let token = jwt.sign(userInfo,authConfig.jwtOptions.secretOrKey);
+                res.json({message: "ok", token: token,userInfo:userInfo});
+            }
+        });
+
+    }
+
+
+
+
+
+
+
+
+
+      }
